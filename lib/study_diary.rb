@@ -1,4 +1,4 @@
-@itens = []
+@itens = [{category: 1, title: "asdasf"}, {category: 3, title: "title"}, {category: 2, title: "title"}, {category: 1, title: "title"}, {category: 4, title: "title"}]
 
 def get_options
   options = <<~OPTIONS
@@ -22,7 +22,13 @@ def get_categorys
   categorys.split("\n")
 end
 
+def clear
+  puts `clear`
+end
+
 def menu
+  clear
+
   options_array = get_options
   options_array.each_with_index{ |text, index| puts "[#{ index + 1 }] #{ text }" }
   puts "Escolha uma opção:"
@@ -37,6 +43,8 @@ def menu
 end
 
 def create
+  clear
+
   puts "Digite o titulo do item:"
   title = gets.chomp
 
@@ -52,22 +60,37 @@ def create
     puts "Categoria inválida, escolha novamente:"
     input = gets.chomp
   end
-  category = input
+  category = input.to_i
 
   @itens << {category: category, title: title}
 end
 
+def list
+  clear
 
+  @itens.sort_by!{|item| item[:category]}
+  categorys_array = get_categorys
+
+  categorys_array.each_with_index do |category, index|
+    puts "==== ##{ index + 1 } - #{ category } ===="
+    @itens.each {|item| puts item[:title] if item[:category] == index + 1}
+    puts "\n"
+  end
+  puts "==============================="
+end
 
 
 
 begin
-  puts `clear`
   menu
 
   case @option
   when 1
     create
+    puts "Pressione 'Enter' para continuar"
+    gets
+  when 2
+    list
     puts "Pressione 'Enter' para continuar"
     gets
   end
