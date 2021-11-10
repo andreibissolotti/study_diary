@@ -67,15 +67,16 @@ def create
 end
 
 def list(itens)
-  clear
-
   itens.sort_by!{|item| item[:category]}
   categorys_array = get_categorys
 
   categorys_array.each_with_index do |category, index|
-    puts "==== ##{ index + 1 } - #{ category } ===="
-    itens.each {|item| puts item[:title] if item[:category] == index + 1}
-    puts "\n"
+
+    if itens.map{|item| item[:category]}.uniq.include?(index + 1)
+      puts "==== ##{ index + 1 } - #{ category } ===="
+      itens.each {|item| puts item[:title] if item[:category] == index + 1}
+      puts "\n"
+    end
   end
   puts "==============================="
 end
@@ -86,19 +87,20 @@ def search
   puts "Digite o termo desejado:"
   key = gets.chomp.downcase
 
-  filtered_itens = @itens.map{|item| item if item[:title].downcase.include?(key)}
+  filtered_itens = @itens.map{|item| item if item[:title].downcase.include?(key)}.compact
 
   if filtered_itens.length == 0
-    puts "Nenhum item encontrado.\n"
+    puts "Nenhum item encontrado."
+    puts "==============================="
   elsif filtered_itens.length == 1
-    puts "1 item encontrado:\n"
+    puts "1 item encontrado:"
+    puts "\n"
     list(filtered_itens)
   else
-    puts "#{filtered_itens.length} itens em contrados:\n"
+    puts "#{filtered_itens.length} itens encontrados:"
+    puts "\n"
     list(filtered_itens)
   end
-
-  puts "==============================="
 end
 
 
@@ -112,7 +114,12 @@ begin
     puts "Pressione 'Enter' para continuar"
     gets
   when 2
+    clear
     list(@itens)
+    puts "Pressione 'Enter' para continuar"
+    gets
+  when 3
+    search
     puts "Pressione 'Enter' para continuar"
     gets
   end
