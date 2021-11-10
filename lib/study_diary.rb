@@ -1,10 +1,11 @@
-@itens = [{category: 1, title: "asdasf"}, {category: 3, title: "title"}, {category: 2, title: "title"}, {category: 1, title: "title"}, {category: 4, title: "title"}]
+@itens = [{category: 1, title: "Usar hashs"}, {category: 3, title: "Aprender a fazer tabelas"}, {category: 2, title: "Automatizar tabelas no banco de dados"}, 
+  {category: 1, title: "Usar banco de dados sem rails"}, {category: 4, title: "Aprender mais sobre uso de APIs"}]
 
 def get_options
   options = <<~OPTIONS
     Cadastrar um item para estudar
     Ver todos os itens cadastrados
-    Buscar um item de estudo
+    Buscar um termo de estudo
     Sair
   OPTIONS
 
@@ -65,17 +66,38 @@ def create
   @itens << {category: category, title: title}
 end
 
-def list
+def list(itens)
   clear
 
-  @itens.sort_by!{|item| item[:category]}
+  itens.sort_by!{|item| item[:category]}
   categorys_array = get_categorys
 
   categorys_array.each_with_index do |category, index|
     puts "==== ##{ index + 1 } - #{ category } ===="
-    @itens.each {|item| puts item[:title] if item[:category] == index + 1}
+    itens.each {|item| puts item[:title] if item[:category] == index + 1}
     puts "\n"
   end
+  puts "==============================="
+end
+
+def search
+  clear
+
+  puts "Digite o termo desejado:"
+  key = gets.chomp.downcase
+
+  filtered_itens = @itens.map{|item| item if item[:title].downcase.include?(key)}
+
+  if filtered_itens.length == 0
+    puts "Nenhum item encontrado.\n"
+  elsif filtered_itens.length == 1
+    puts "1 item encontrado:\n"
+    list(filtered_itens)
+  else
+    puts "#{filtered_itens.length} itens em contrados:\n"
+    list(filtered_itens)
+  end
+
   puts "==============================="
 end
 
@@ -90,7 +112,7 @@ begin
     puts "Pressione 'Enter' para continuar"
     gets
   when 2
-    list
+    list(@itens)
     puts "Pressione 'Enter' para continuar"
     gets
   end
