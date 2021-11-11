@@ -5,7 +5,7 @@
 - [x] Cadastrar itens 
 - [x] Listar itens cadastrados
 - [x] Buscar por termo chave
-- [ ] Listar por categoria
+- [x] Listar por categoria
 - [ ] Descrição dos itens
 - [ ] Marcar como concluido
 - [x] Integração com banco de dados
