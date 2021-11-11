@@ -11,6 +11,7 @@ begin
   db = SQLite3::Database.open "db/database.db"
   db.execute <<~SQL
     CREATE TABLE Tasks(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
       category varchar(255),
       title varchar(255),
       descr varchar(255)
@@ -21,7 +22,7 @@ begin
     [1, "Usar banco de dados sem rails", ""], [4, "Aprender mais sobre uso de APIs", ""]]
 
   seed_data.each do |data|
-    db.execute "INSERT INTO Tasks VALUES ( ?, ?, ? )", data
+    db.execute "INSERT INTO Tasks (category, title, descr) VALUES ( ?, ?, ? )", data
   end
 
 rescue SQLite3::Exception => e

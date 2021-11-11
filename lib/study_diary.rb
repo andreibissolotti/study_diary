@@ -72,12 +72,12 @@ end
 def list(itens)
   itens.sort_by!{|item| item.category}
   categorys_array = get_categorys
-
+  puts "id - title"
+  puts "==============================="
   categorys_array.each_with_index do |category, index|
-
     if itens.map{|item| item.category.to_i}.uniq.include?(index + 1)
       puts "==== ##{ index + 1 } - #{ category } ===="
-      itens.each {|item| puts item.title if item.category.to_i == index + 1}
+      itens.each {|item| puts "#{item.id} - #{item.title}" if item.category.to_i == index + 1}
       puts "\n"
     end
   end
