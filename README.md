@@ -1,5 +1,5 @@
 # study_diary
-###Desafio opcional? do programa quero ser dev 7 da Campus Code.
+### Desafio opcional? do programa quero ser dev 7 da Campus Code.
 
 ### Features
 - [x] Cadastrar itens 
