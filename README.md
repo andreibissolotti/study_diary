@@ -8,7 +8,7 @@
 - [ ] Listar por categoria
 - [ ] Descrição dos itens
 - [ ] Marcar como concluido
-- [ ] Integração com banco de dados
+- [x] Integração com banco de dados
 
 ### Tecnologias usadas
 
