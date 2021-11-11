@@ -27,10 +27,10 @@ class Task
     self
   end
 
-  def self.find_by_title(title)
+  def self.find_by_keyword(keyword)
     db = SQLite3::Database.open "db/database.db"
     db.results_as_hash = true
-    tasks = db.execute "SELECT * FROM tasks where title LIKE '%#{title}%'"
+    tasks = db.execute "SELECT * FROM tasks where title LIKE '%#{keyword}%' OR descr LIKE '%#{keyword}%'"
     db.close
 
     tasks.map {|task| new(id: task['id'], category: task['category'], title: task['title'], description: task['descr']) }
@@ -45,4 +45,12 @@ class Task
     tasks.map {|task| new(id: task['id'], category: task['category'], title: task['title'], description: task['descr']) }
   end
 
+  def self.find_by_id(id)
+    db = SQLite3::Database.open "db/database.db"
+    db.results_as_hash = true
+    tasks = db.execute "SELECT * FROM tasks where id LIKE '#{id}'"
+    db.close
+
+    tasks.map {|task| new(id: task['id'], category: task['category'], title: task['title'], description: task['descr']) }[0]
+  end
 end

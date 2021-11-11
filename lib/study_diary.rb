@@ -67,13 +67,13 @@ def create
   begin
     puts "Deseja adicionar alguma descrição? [Y/N]"
     yes_no = gets.chomp.chr.downcase
-    description = add_description(yes_no)
+    description = take_description(yes_no)
   end until yes_no == "y" || yes_no == "n"
 
   Task.save_to_db(category, title, description)
 end
 
-def add_description(yes_no)
+def take_description(yes_no)
   if yes_no == "y"
     begin
       puts "Digite a descrição (max: 255 caracteres)"
@@ -103,6 +103,31 @@ def list(itens)
     end
   end
   puts "==============================="
+  puts "Para visualizar a descrição de algum item, digite seu ID: (Enter para ignorar)"
+  id = gets.chomp
+  unless id == ""
+    item = Task.find_by_id(id)
+    if item
+      list_description(item)
+    else
+      puts "Id invalido"
+    end
+  end
+end
+
+def list_description(item)
+  categorys_array = get_categorys
+  puts "==== ##{ item.category } - #{ categorys_array[item.category.to_i - 1] } ===="
+  puts "#{item.id} - #{item.title}"
+  if item.description != ""
+    puts "Descrição:"
+    puts item.description
+    puts "==============================="
+  else
+    puts "Este item não possui descrição, deseja adcionar uma? [Y/N]"
+    yes_no = gets.chomp.chr.downcase
+    description = take_description(yes_no)
+  end
 end
 
 def search_by_keyword
@@ -111,7 +136,7 @@ def search_by_keyword
   puts "Digite o termo desejado:"
   key = gets.chomp.downcase
 
-  filtered_itens = Task.find_by_title(key)
+  filtered_itens = Task.find_by_keyword(key)
 
   if filtered_itens.length == 0
     puts "Nenhum item encontrado."
