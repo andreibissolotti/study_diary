@@ -13,7 +13,7 @@
 ### Tecnologias usadas
 
 - [x] Ruby <img align="center" alt="Ruby" height="20" width="30" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ruby/ruby-plain.svg">
-- [ ] sqlite
+- [x] sqlite
 
 ##### Para testar o projeto siga os passos:
 
