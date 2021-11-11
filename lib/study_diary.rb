@@ -64,9 +64,30 @@ def create
   end
   category = input.to_i
 
-  description = ""
+  begin
+    puts "Deseja adicionar alguma descrição? [Y/N]"
+    yes_no = gets.chomp.chr.downcase
+    description = add_description(yes_no)
+  end until yes_no == "y" || yes_no == "n"
 
   Task.save_to_db(category, title, description)
+end
+
+def add_description(yes_no)
+  if yes_no == "y"
+    begin
+      puts "Digite a descrição (max: 255 caracteres)"
+      desc = gets.chomp
+      unless desc.length <= 255
+        puts "Essa descrição ficou grande de mais, retire #{desc.length - 255} caracteres"
+      end
+    end until desc.length <= 255
+    return desc
+  elsif yes_no == "n"
+    return ""
+  else
+    puts "Opção invalida, tente novamente"
+  end
 end
 
 def list(itens)
