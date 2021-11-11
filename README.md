@@ -8,6 +8,8 @@
 - [x] Listar por categoria
 - [ ] Descrição dos itens
 - [ ] Marcar como concluido
+- [ ] Deletar item
+- [ ] Excluir item
 - [x] Integração com banco de dados
 
 ### Tecnologias usadas
