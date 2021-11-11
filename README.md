@@ -6,7 +6,7 @@
 - [x] Listar itens cadastrados
 - [x] Buscar por termo chave
 - [x] Listar por categoria
-- [ ] Descrição dos itens
+- [x] Descrição dos itens
 - [ ] Marcar como concluido
 - [ ] Deletar item
 - [ ] Excluir item
