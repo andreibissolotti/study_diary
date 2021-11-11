@@ -5,6 +5,7 @@ def get_options
     Cadastrar um item para estudar
     Ver todos os itens cadastrados
     Buscar um termo de estudo
+    Buscar por categoria
     Sair
   OPTIONS
 
@@ -83,13 +84,37 @@ def list(itens)
   puts "==============================="
 end
 
-def search
+def search_by_keyword
   clear
 
   puts "Digite o termo desejado:"
   key = gets.chomp.downcase
 
-  filtered_itens = @itens.map{|item| item if item.title.downcase.include?(key)}.compact
+  filtered_itens = Task.find_by_title(key)
+
+  if filtered_itens.length == 0
+    puts "Nenhum item encontrado."
+    puts "==============================="
+  elsif filtered_itens.length == 1
+    puts "1 item encontrado:"
+    puts "\n"
+    list(filtered_itens)
+  else
+    puts "#{filtered_itens.length} itens encontrados:"
+    puts "\n"
+    list(filtered_itens)
+  end
+end
+
+def search_by_category
+  clear
+
+  categorys_array = get_categorys
+  categorys_array.each_with_index{ |text, index| puts "##{ index + 1 } - #{ text }" }
+  puts "Digite a categoria desejada:"
+  category = gets.chomp
+
+  filtered_itens = Task.find_by_category(category)
 
   if filtered_itens.length == 0
     puts "Nenhum item encontrado."
@@ -121,9 +146,14 @@ begin
     puts "Pressione 'Enter' para continuar"
     gets
   when 3
-    search
+    search_by_keyword
+    puts "Pressione 'Enter' para continuar"
+    gets
+  when 4
+    search_by_category
     puts "Pressione 'Enter' para continuar"
     gets
   end
-end until @option == 4
+end until @option == 5
+clear
 puts "Obrigado por usar o diario de estudos"
