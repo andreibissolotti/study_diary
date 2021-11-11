@@ -1,5 +1,4 @@
-@itens = [{category: 1, title: "Usar hashs"}, {category: 3, title: "Aprender a fazer tabelas"}, {category: 2, title: "Automatizar tabelas no banco de dados"}, 
-  {category: 1, title: "Usar banco de dados sem rails"}, {category: 4, title: "Aprender mais sobre uso de APIs"}]
+require_relative 'task'
 
 def get_options
   options = <<~OPTIONS
@@ -29,6 +28,7 @@ end
 
 def menu
   clear
+  @itens = Task.all
 
   options_array = get_options
   options_array.each_with_index{ |text, index| puts "[#{ index + 1 }] #{ text }" }
@@ -63,18 +63,20 @@ def create
   end
   category = input.to_i
 
-  @itens << {category: category, title: title}
+  description = ""
+
+  Task.save_to_db(category, title, description)
 end
 
 def list(itens)
-  itens.sort_by!{|item| item[:category]}
+  itens.sort_by!{|item| item.category}
   categorys_array = get_categorys
 
   categorys_array.each_with_index do |category, index|
 
-    if itens.map{|item| item[:category]}.uniq.include?(index + 1)
+    if itens.map{|item| item.category.to_i}.uniq.include?(index + 1)
       puts "==== ##{ index + 1 } - #{ category } ===="
-      itens.each {|item| puts item[:title] if item[:category] == index + 1}
+      itens.each {|item| puts item.title if item.category.to_i == index + 1}
       puts "\n"
     end
   end
@@ -87,7 +89,7 @@ def search
   puts "Digite o termo desejado:"
   key = gets.chomp.downcase
 
-  filtered_itens = @itens.map{|item| item if item[:title].downcase.include?(key)}.compact
+  filtered_itens = @itens.map{|item| item if item.title.downcase.include?(key)}.compact
 
   if filtered_itens.length == 0
     puts "Nenhum item encontrado."
@@ -107,7 +109,7 @@ end
 
 begin
   menu
-
+  
   case @option
   when 1
     create

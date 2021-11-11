@@ -11,16 +11,17 @@ begin
   db = SQLite3::Database.open "db/database.db"
   db.execute <<~SQL
     CREATE TABLE Tasks(
+      category varchar(255),
       title varchar(255),
-      category varchar(255)
+      descr varchar(255)
     );
   SQL
 
-  seed_data = [["Enviar documentos", "Trabalho"],
-               ["Comprar papel higiênico", "Casa"]]
+  seed_data = [[1, "Usar hashs", ""], [3, "Aprender a fazer tabelas", ""], [2, "Automatizar tabelas no banco de dados", ""], 
+    [1, "Usar banco de dados sem rails", ""], [4, "Aprender mais sobre uso de APIs", ""]]
 
   seed_data.each do |data|
-    db.execute "INSERT INTO Tasks VALUES ( ?, ? )", data
+    db.execute "INSERT INTO Tasks VALUES ( ?, ?, ? )", data
   end
 
 rescue SQLite3::Exception => e
