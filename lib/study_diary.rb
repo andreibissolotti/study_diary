@@ -6,6 +6,7 @@ def get_options
     Ver todos os itens cadastrados
     Buscar um termo de estudo
     Buscar por categoria
+    Excluir item
     Sair
   OPTIONS
 
@@ -90,7 +91,7 @@ def take_description(yes_no)
   end
 end
 
-def list(itens)
+def list(itens, see_desc)
   itens.sort_by!{|item| item.category}
   categorys_array = get_categorys
   puts "id - title"
@@ -103,14 +104,17 @@ def list(itens)
     end
   end
   puts "==============================="
-  puts "Para visualizar a descrição de algum item, digite seu ID: (Enter para ignorar)"
-  id = gets.chomp
-  unless id == ""
-    item = Task.find_by_id(id)
-    if item
-      list_description(item)
-    else
-      puts "Id invalido"
+
+  if see_desc
+    puts "Para visualizar a descrição de algum item, digite seu ID: (Enter para ignorar)"
+    id = gets.chomp
+    unless id == ""
+      item = Task.find_by_id(id)
+      if item
+        list_description(item)
+      else
+        puts "Id invalido"
+      end
     end
   end
 end
@@ -144,11 +148,11 @@ def search_by_keyword
   elsif filtered_itens.length == 1
     puts "1 item encontrado:"
     puts "\n"
-    list(filtered_itens)
+    list(filtered_itens, true)
   else
     puts "#{filtered_itens.length} itens encontrados:"
     puts "\n"
-    list(filtered_itens)
+    list(filtered_itens, true)
   end
 end
 
@@ -168,12 +172,21 @@ def search_by_category
   elsif filtered_itens.length == 1
     puts "1 item encontrado:"
     puts "\n"
-    list(filtered_itens)
+    list(filtered_itens, true)
   else
     puts "#{filtered_itens.length} itens encontrados:"
     puts "\n"
-    list(filtered_itens)
+    list(filtered_itens, true)
   end
+end
+
+def delete_item
+  list(@itens, false)
+  puts "Digite o id do item a ser deletado:"
+  id = gets.chomp
+  Task.delet_by_id(id)
+  puts "\n"
+  puts "Removido com sucesso"
 end
 
 
@@ -188,7 +201,7 @@ begin
     gets
   when 2
     clear
-    list(@itens)
+    list(@itens, true)
     puts "Pressione 'Enter' para continuar"
     gets
   when 3
@@ -199,7 +212,11 @@ begin
     search_by_category
     puts "Pressione 'Enter' para continuar"
     gets
+  when 5
+    delete_item
+    puts "Pressione 'Enter' para continuar"
+    gets
   end
-end until @option == 5
+end until @option == 6
 clear
 puts "Obrigado por usar o diario de estudos"

@@ -53,4 +53,11 @@ class Task
 
     tasks.map {|task| new(id: task['id'], category: task['category'], title: task['title'], description: task['descr']) }[0]
   end
+
+  def self.delet_by_id(id)
+    db = SQLite3::Database.open "db/database.db"
+    db.results_as_hash = true
+    tasks = db.execute "DELETE FROM tasks WHERE id=#{id}"
+    db.close
+  end
 end
