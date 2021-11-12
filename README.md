@@ -12,8 +12,9 @@
 - [x] Marcar como concluido
 - [x] Deletar item
 - [x] Editar item
+- [ ] Opção para cancelar nos menus de edição e exclusão
 - [x] Integração com banco de dados
-- [ ] Aplicar conceitos de orientação a objeto
+- [ ] Conceitos de orientação a objeto
 
 ### Tecnologias usadas
 
