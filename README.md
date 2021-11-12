@@ -14,7 +14,7 @@
 - [x] Editar item
 - [x] Opção para cancelar nos menus internos
 - [x] Integração com banco de dados
-- [ ] Conceitos de orientação a objeto
+- [x] Conceitos de orientação a objeto
 
 ### Tecnologias usadas
 
