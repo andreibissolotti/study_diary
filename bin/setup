@@ -14,15 +14,16 @@ begin
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       category varchar(255),
       title varchar(255),
-      descr varchar(255)
+      descr varchar(255),
+      done boolean
     );
   SQL
 
-  seed_data = [[1, "Usar hashs", ""], [3, "Aprender a fazer tabelas", ""], [2, "Automatizar tabelas no banco de dados", ""], 
-    [1, "Usar banco de dados sem rails", ""], [4, "Aprender mais sobre uso de APIs", ""]]
+  seed_data = [[1, "Usar hashs", "", 1], [3, "Aprender a fazer tabelas", "", 0], [2, "Automatizar tabelas no banco de dados", "", 0], 
+    [1, "Usar banco de dados sem rails", "", 1], [4, "Aprender mais sobre uso de APIs", "", 0]]
 
   seed_data.each do |data|
-    db.execute "INSERT INTO Tasks (category, title, descr) VALUES ( ?, ?, ? )", data
+    db.execute "INSERT INTO Tasks (category, title, descr, done) VALUES ( ?, ?, ?, ? )", data
   end
 
 rescue SQLite3::Exception => e

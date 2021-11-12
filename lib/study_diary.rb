@@ -1,4 +1,5 @@
 require_relative 'task'
+require 'colorize'
 
 def get_options
   options = <<~OPTIONS
@@ -7,6 +8,8 @@ def get_options
     Buscar um termo de estudo
     Buscar por categoria
     Excluir item
+    Atualizar item
+    Alterar status de comcluido de um item
     Sair
   OPTIONS
 
@@ -53,6 +56,18 @@ def create
 
   puts "==============================="
 
+  category = take_category
+
+  begin
+    puts "Deseja adicionar alguma descrição? [Y/N]"
+    yes_no = gets.chomp.chr.downcase
+    description = take_description(yes_no)
+  end until yes_no == "y" || yes_no == "n"
+
+  Task.save_to_db(category, title, description)
+end
+
+def take_category
   categorys_array = get_categorys
   categorys_array.each_with_index{ |text, index| puts "##{ index + 1 } - #{ text }" }
   puts "Defina a categoria:"
@@ -63,15 +78,7 @@ def create
     puts "Categoria inválida, escolha novamente:"
     input = gets.chomp
   end
-  category = input.to_i
-
-  begin
-    puts "Deseja adicionar alguma descrição? [Y/N]"
-    yes_no = gets.chomp.chr.downcase
-    description = take_description(yes_no)
-  end until yes_no == "y" || yes_no == "n"
-
-  Task.save_to_db(category, title, description)
+  input.to_i
 end
 
 def take_description(yes_no)
@@ -99,7 +106,15 @@ def list(itens, see_desc)
   categorys_array.each_with_index do |category, index|
     if itens.map{|item| item.category.to_i}.uniq.include?(index + 1)
       puts "==== ##{ index + 1 } - #{ category } ===="
-      itens.each {|item| puts "#{item.id} - #{item.title}" if item.category.to_i == index + 1}
+      itens.each do |item| 
+        if item.category.to_i == index + 1
+          if item.done == 1
+            puts "#{item.id} - #{item.title}".green
+          else
+            puts "#{item.id} - #{item.title}"
+          end
+        end
+      end
       puts "\n"
     end
   end
@@ -131,6 +146,8 @@ def list_description(item)
     puts "Este item não possui descrição, deseja adcionar uma? [Y/N]"
     yes_no = gets.chomp.chr.downcase
     description = take_description(yes_no)
+    item.description = description
+    Task.update(item)
   end
 end
 
@@ -189,6 +206,77 @@ def delete_item
   puts "Removido com sucesso"
 end
 
+def update
+  list(@itens, false)
+  puts "Digite o id do item a ser editado:"
+  id = gets.chomp
+  item = Task.find_by_id(id)
+  if item
+    
+    clear
+    puts "(vazio para manter atual)"
+    puts "Digite novo titulo:"
+    titulo_new = gets.chomp
+    unless titulo_new == ""
+      item.title = titulo_new
+    end
+
+    clear
+    begin
+      puts "Alterar categoria? [Y/N]"
+      option = gets.chomp.chr.downcase
+      if option == "y"
+        clear
+        category_new = take_category
+        unless category_new == ""
+          item.category = category_new
+        end
+      elsif option == "n"
+      else
+        puts "Opção invalida, tente novamente"
+      end
+    end until option == "y" || option == "n"
+
+    clear
+    puts "(vazio para manter atual)"
+    description_new = take_description("y")
+    unless description_new == ""
+      item.description = description_new
+    end
+
+    clear
+    mark_as_done(item)
+  else
+    puts "Id invalido"
+  end
+end
+
+def mark_as_done(item)
+  if item == ""
+    list(@itens, false)
+    puts "Digite o id do item a ser alterado:"
+    id = gets.chomp
+    item = Task.find_by_id(id)
+  end
+
+  if item
+    begin
+      puts "Esta tarefa está concluida? [Y/N]"
+      option = gets.chomp.chr.downcase
+      if option == "y"
+        item.done = 1
+      elsif option == "n"
+        item.done = 0
+      else
+        puts "Opção invalida, tente novamente"
+      end
+    end until option == "y" || option == "n"
+
+    Task.update(item)
+  else
+    puts "Id invalido"
+  end
+end
 
 
 begin
@@ -197,26 +285,25 @@ begin
   case @option
   when 1
     create
-    puts "Pressione 'Enter' para continuar"
-    gets
   when 2
     clear
     list(@itens, true)
-    puts "Pressione 'Enter' para continuar"
-    gets
   when 3
     search_by_keyword
-    puts "Pressione 'Enter' para continuar"
-    gets
   when 4
     search_by_category
-    puts "Pressione 'Enter' para continuar"
-    gets
   when 5
     delete_item
+  when 6
+    update
+  when 7
+    mark_as_done("")
+  end
+
+  unless @option == 8
     puts "Pressione 'Enter' para continuar"
     gets
   end
-end until @option == 6
+end until @option == 8
 clear
 puts "Obrigado por usar o diario de estudos"

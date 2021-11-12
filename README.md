@@ -1,16 +1,19 @@
 # study_diary
+
 ### Desafio opcional? do programa quero ser dev 7 da Campus Code.
 
 ### Features
-- [x] Cadastrar itens 
+
+- [x] Cadastrar itens
 - [x] Listar itens cadastrados
 - [x] Buscar por termo chave
 - [x] Listar por categoria
 - [x] Descrição dos itens
-- [ ] Marcar como concluido
+- [x] Marcar como concluido
 - [x] Deletar item
-- [ ] Editar item
+- [x] Editar item
 - [x] Integração com banco de dados
+- [ ] Aplicar conceitos de orientação a objeto
 
 ### Tecnologias usadas
 
