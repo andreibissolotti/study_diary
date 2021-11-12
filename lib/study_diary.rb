@@ -33,6 +33,7 @@ end
 
 def menu
   clear
+  puts "Bem vindo ao diario de estudos\n\n".black.on_white
   @itens = Task.all
 
   options_array = get_options
@@ -49,11 +50,16 @@ def menu
 end
 
 def create
-  clear
+  
 
+  puts "Menu de criação, para cancelar digite 0\n\n".black.on_white
   puts "Digite o titulo do item:"
   title = gets.chomp
 
+  if title == "0"
+    puts "Cancelado!"
+    return self
+  end
   puts "==============================="
 
   category = take_category
@@ -152,10 +158,14 @@ def list_description(item)
 end
 
 def search_by_keyword
-  clear
-
+  
+  puts "Menu de busca, digite # para cancelar\n\n".black.on_white
   puts "Digite o termo desejado:"
   key = gets.chomp.downcase
+  if key == "#"
+    puts "Cancelado!"
+    return self
+  end
 
   filtered_itens = Task.find_by_keyword(key)
 
@@ -174,12 +184,17 @@ def search_by_keyword
 end
 
 def search_by_category
-  clear
+  
 
+  puts "Menu de busca, digite # para cancelar\n\n".black.on_white
   categorys_array = get_categorys
   categorys_array.each_with_index{ |text, index| puts "##{ index + 1 } - #{ text }" }
-  puts "Digite a categoria desejada:"
-  category = gets.chomp
+  puts "Digite o termo desejado:"
+  category = gets.chomp.downcase
+  if category == "#"
+    puts "Cancelado!"
+    return self
+  end
 
   filtered_itens = Task.find_by_category(category)
 
@@ -198,18 +213,28 @@ def search_by_category
 end
 
 def delete_item
+  puts "Menu de exclusão, digite 0 para cancelar\n\n".black.on_white
   list(@itens, false)
   puts "Digite o id do item a ser deletado:"
   id = gets.chomp
+  if id == "0"
+    puts "Cancelado!"
+    return self
+  end
   Task.delet_by_id(id)
   puts "\n"
   puts "Removido com sucesso"
 end
 
 def update
+  puts "Menu de edição, digite 0 para cancelar\n\n".black.on_white
   list(@itens, false)
   puts "Digite o id do item a ser editado:"
   id = gets.chomp
+  if id == "0"
+    puts "Cancelado!"
+    return self
+  end
   item = Task.find_by_id(id)
   if item
     
@@ -253,9 +278,14 @@ end
 
 def mark_as_done(item)
   if item == ""
+    puts "Menu de edição, digite 0 para cancelar\n\n".black.on_white
     list(@itens, false)
-    puts "Digite o id do item a ser alterado:"
+    puts "Digite o id do item a ser editado:"
     id = gets.chomp
+    if id == "0"
+      puts "Cancelado!"
+      return self
+    end
     item = Task.find_by_id(id)
   end
 
@@ -284,19 +314,25 @@ begin
   
   case @option
   when 1
+    clear
     create
   when 2
     clear
     list(@itens, true)
   when 3
+    clear
     search_by_keyword
   when 4
+    clear
     search_by_category
   when 5
+    clear
     delete_item
   when 6
+    clear
     update
   when 7
+    clear
     mark_as_done("")
   end
 
@@ -306,4 +342,4 @@ begin
   end
 end until @option == 8
 clear
-puts "Obrigado por usar o diario de estudos"
+puts "Obrigado por usar o diario de estudos".black.on_white

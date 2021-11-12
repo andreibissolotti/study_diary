@@ -12,7 +12,7 @@
 - [x] Marcar como concluido
 - [x] Deletar item
 - [x] Editar item
-- [ ] Opção para cancelar nos menus de edição e exclusão
+- [x] Opção para cancelar nos menus internos
 - [x] Integração com banco de dados
 - [ ] Conceitos de orientação a objeto
 
