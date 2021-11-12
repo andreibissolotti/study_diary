@@ -1,4 +1,4 @@
-require_relative 'study_item'
+require_relative 'task'
 require 'colorize'
 
 def get_options
@@ -16,6 +16,17 @@ def get_options
   options.split("\n")
 end
 
+def get_categorys
+  categorys = <<~CATEGORYS
+    Ruby
+    Rails
+    HTML
+    Javascript
+  CATEGORYS
+
+  categorys.split("\n")
+end
+
 def clear
   puts `clear`
 end
@@ -23,7 +34,7 @@ end
 def menu
   clear
   puts "Bem vindo ao diario de estudos\n\n".black.on_white
-  @itens = StudyItem.all
+  @itens = Task.all
 
   options_array = get_options
   options_array.each_with_index{ |text, index| puts "[#{ index + 1 }] #{ text }" }
@@ -39,6 +50,8 @@ def menu
 end
 
 def create
+  
+
   puts "Menu de criação, para cancelar digite 0\n\n".black.on_white
   puts "Digite o titulo do item:"
   title = gets.chomp
@@ -49,20 +62,33 @@ def create
   end
   puts "==============================="
 
-  category = Category.take_category
+  category = take_category
 
   begin
     puts "Deseja adicionar alguma descrição? [Y/N]"
-    option = gets.chomp.chr.downcase
-    description = take_description(option)
-  end until option == "y" || option == "n"
+    yes_no = gets.chomp.chr.downcase
+    description = take_description(yes_no)
+  end until yes_no == "y" || yes_no == "n"
 
-  item = StudyItem.new(id: 0, category: category.id, title: title, description: description)
-  puts item.save_to_db(category.id, title, description).id
+  Task.save_to_db(category, title, description)
 end
 
-def take_description(option)
-  if option == "y"
+def take_category
+  categorys_array = get_categorys
+  categorys_array.each_with_index{ |text, index| puts "##{ index + 1 } - #{ text }" }
+  puts "Defina a categoria:"
+  
+  valid_categorys = (1..categorys_array.length).to_a
+  input = gets.chomp
+  until valid_categorys.include?(input.to_i)
+    puts "Categoria inválida, escolha novamente:"
+    input = gets.chomp
+  end
+  input.to_i
+end
+
+def take_description(yes_no)
+  if yes_no == "y"
     begin
       puts "Digite a descrição (max: 255 caracteres)"
       desc = gets.chomp
@@ -71,7 +97,7 @@ def take_description(option)
       end
     end until desc.length <= 255
     return desc
-  elsif option == "n"
+  elsif yes_no == "n"
     return ""
   else
     puts "Opção invalida, tente novamente"
@@ -104,7 +130,7 @@ def list(itens, see_desc)
     puts "Para visualizar a descrição de algum item, digite seu ID: (Enter para ignorar)"
     id = gets.chomp
     unless id == ""
-      item = StudyItem.find_by_id(id)
+      item = Task.find_by_id(id)
       if item
         list_description(item)
       else
@@ -124,10 +150,10 @@ def list_description(item)
     puts "==============================="
   else
     puts "Este item não possui descrição, deseja adcionar uma? [Y/N]"
-    option = gets.chomp.chr.downcase
-    description = take_description(option)
+    yes_no = gets.chomp.chr.downcase
+    description = take_description(yes_no)
     item.description = description
-    StudyItem.update(item)
+    Task.update(item)
   end
 end
 
@@ -141,7 +167,7 @@ def search_by_keyword
     return self
   end
 
-  filtered_itens = StudyItem.find_by_keyword(key)
+  filtered_itens = Task.find_by_keyword(key)
 
   if filtered_itens.length == 0
     puts "Nenhum item encontrado."
@@ -170,7 +196,7 @@ def search_by_category
     return self
   end
 
-  filtered_itens = StudyItem.find_by_category(category)
+  filtered_itens = Task.find_by_category(category)
 
   if filtered_itens.length == 0
     puts "Nenhum item encontrado."
@@ -195,7 +221,7 @@ def delete_item
     puts "Cancelado!"
     return self
   end
-  StudyItem.delet_by_id(id)
+  Task.delet_by_id(id)
   puts "\n"
   puts "Removido com sucesso"
 end
@@ -209,7 +235,7 @@ def update
     puts "Cancelado!"
     return self
   end
-  item = StudyItem.find_by_id(id)
+  item = Task.find_by_id(id)
   if item
     
     clear
@@ -260,7 +286,7 @@ def mark_as_done(item)
       puts "Cancelado!"
       return self
     end
-    item = StudyItem.find_by_id(id)
+    item = Task.find_by_id(id)
   end
 
   if item
@@ -276,7 +302,7 @@ def mark_as_done(item)
       end
     end until option == "y" || option == "n"
 
-    StudyItem.update(item)
+    Task.update(item)
   else
     puts "Id invalido"
   end
