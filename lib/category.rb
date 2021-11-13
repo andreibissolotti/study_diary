@@ -9,7 +9,7 @@ class Category
 
   def self.take_category
     categorys_array = get_categorys
-    categorys_array.each_with_index{ |text, index| puts "##{ index + 1 } - #{ text }" }
+    categorys_array.each_with_index{ |text, index| puts "##{ index } - #{ text }" if index > 0}
     puts "Defina a categoria:"
     
     valid_categorys = (1..categorys_array.length).to_a
@@ -30,6 +30,7 @@ class Category
 
   def self.get_categorys
     categorys = <<~CATEGORYS
+      ---
       Ruby
       Rails
       HTML

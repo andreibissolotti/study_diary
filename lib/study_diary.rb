@@ -58,7 +58,9 @@ def create
   end until option == "y" || option == "n"
 
   item = StudyItem.new(id: 0, category: category.id, title: title, description: description)
-  puts item.save_to_db(category.id, title, description).id
+  StudyItem.save_to_db(category.id, title, description)
+  puts "Item cadastrado!"
+  list_description(StudyItem.find_by_id(StudyItem.get_id))
 end
 
 def take_description(option)
@@ -79,15 +81,15 @@ def take_description(option)
 end
 
 def list(itens, see_desc)
-  itens.sort_by!{|item| item.category}
-  categorys_array = get_categorys
+  itens.sort_by!{|item| item.category.id}
+  categorys_array = itens.map{|item| [item.category.id, item.category.name]}.uniq
   puts "id - title"
   puts "==============================="
-  categorys_array.each_with_index do |category, index|
-    if itens.map{|item| item.category.to_i}.uniq.include?(index + 1)
-      puts "==== ##{ index + 1 } - #{ category } ===="
+  categorys_array.each do |category|
+    if itens.map{|item| item.category.id.to_i}.uniq.include?(category[0])
+      puts "==== ##{ category[0] } - #{ category[1] } ===="
       itens.each do |item| 
-        if item.category.to_i == index + 1
+        if item.category.id.to_i == category[0]
           if item.done == 1
             puts "#{item.id} - #{item.title}".green
           else
@@ -115,8 +117,7 @@ def list(itens, see_desc)
 end
 
 def list_description(item)
-  categorys_array = get_categorys
-  puts "==== ##{ item.category } - #{ categorys_array[item.category.to_i - 1] } ===="
+  puts "==== ##{ item.category.id } - #{ item.category.name } ===="
   puts "#{item.id} - #{item.title}"
   if item.description != ""
     puts "Descrição:"
@@ -125,14 +126,15 @@ def list_description(item)
   else
     puts "Este item não possui descrição, deseja adcionar uma? [Y/N]"
     option = gets.chomp.chr.downcase
-    description = take_description(option)
-    item.description = description
-    StudyItem.update(item)
+    begin
+      description = take_description(option)
+      item.description = description
+      StudyItem.update(item) if option == "y"
+    end until option == "y" || option == "n"
   end
 end
 
 def search_by_keyword
-  
   puts "Menu de busca, digite # para cancelar\n\n".black.on_white
   puts "Digite o termo desejado:"
   key = gets.chomp.downcase
@@ -143,6 +145,7 @@ def search_by_keyword
 
   filtered_itens = StudyItem.find_by_keyword(key)
 
+  puts "==============================="
   if filtered_itens.length == 0
     puts "Nenhum item encontrado."
     puts "==============================="
@@ -158,11 +161,9 @@ def search_by_keyword
 end
 
 def search_by_category
-  
-
   puts "Menu de busca, digite # para cancelar\n\n".black.on_white
-  categorys_array = get_categorys
-  categorys_array.each_with_index{ |text, index| puts "##{ index + 1 } - #{ text }" }
+  categorys_array = Category.get_categorys
+  categorys_array.each_with_index{ |text, index| puts "##{ index } - #{ text }" if index > 0}
   puts "Digite o termo desejado:"
   category = gets.chomp.downcase
   if category == "#"
@@ -226,9 +227,9 @@ def update
       option = gets.chomp.chr.downcase
       if option == "y"
         clear
-        category_new = take_category
+        category_new = Category.take_category
         unless category_new == ""
-          item.category = category_new
+          item.category.id = category_new.id
         end
       elsif option == "n"
       else
