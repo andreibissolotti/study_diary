@@ -44,7 +44,7 @@ def create
   title = gets.chomp
 
   if title == "0"
-    puts "Cancelado!"
+    puts "Cancelado!".red
     return self
   end
   puts "==============================="
@@ -139,7 +139,7 @@ def search_by_keyword
   puts "Digite o termo desejado:"
   key = gets.chomp.downcase
   if key == "#"
-    puts "Cancelado!"
+    puts "Cancelado!".red
     return self
   end
 
@@ -167,7 +167,7 @@ def search_by_category
   puts "Digite o termo desejado:"
   category = gets.chomp.downcase
   if category == "#"
-    puts "Cancelado!"
+    puts "Cancelado!".red
     return self
   end
 
@@ -193,7 +193,7 @@ def delete_item
   puts "Digite o id do item a ser deletado:"
   id = gets.chomp
   if id == "0"
-    puts "Cancelado!"
+    puts "Cancelado!".red
     return self
   end
   StudyItem.delet_by_id(id)
@@ -207,7 +207,7 @@ def update
   puts "Digite o id do item a ser editado:"
   id = gets.chomp
   if id == "0"
-    puts "Cancelado!"
+    puts "Cancelado!".red
     return self
   end
   item = StudyItem.find_by_id(id)
@@ -258,7 +258,7 @@ def mark_as_done(item)
     puts "Digite o id do item a ser editado:"
     id = gets.chomp
     if id == "0"
-      puts "Cancelado!"
+      puts "Cancelado!".red
       return self
     end
     item = StudyItem.find_by_id(id)
