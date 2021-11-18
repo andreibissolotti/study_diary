@@ -1,4 +1,4 @@
-# study_diary
+# STUDY DIARY
 
 ### Desafio extra do programa quero ser dev 7 da Campus Code.
 
@@ -29,3 +29,6 @@ cd study_diary
 bin/setup
 ruby lib/study_diary.rb
 ```
+
+
+###### Obs: Os itens nativos do banco de dados são apenas exemplos hipotéticos e podem ser alterados conforme a nescessidade do usuário
