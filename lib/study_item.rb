@@ -48,10 +48,10 @@ class StudyItem
   def self.find_by_id(id)
     db = SQLite3::Database.open "db/database.db"
     db.results_as_hash = true
-    study_itens = db.execute "SELECT * FROM study_itens where id LIKE '#{id}'"
+    study_itens = db.execute "SELECT * FROM study_itens where id = '#{id}'"
     db.close
 
-    study_itens.map {|study_item| new(id: study_item['id'], category: study_item['category'], title: study_item['title'], description: study_item['descr'], done: study_item['done']) }[0]
+    study_itens.map {|study_item| new(id: study_item['id'], category: study_item['category'], title: study_item['title'], description: study_item['descr'], done: study_item['done']) }
   end
 
   def self.delet_by_id(id)
@@ -67,7 +67,7 @@ class StudyItem
     UPDATE study_itens SET category = #{item.category.id}, title = '#{item.title}', descr = '#{item.description}', done = #{item.done} WHERE id LIKE #{item.id}"
     db.close
 
-    puts "Item Atualizado"
+    puts "Item Atualizado".green
   end
 
 

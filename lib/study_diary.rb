@@ -9,7 +9,7 @@ def get_options
     Buscar por categoria
     Excluir item
     Atualizar item
-    Alterar status de comcluido de um item
+    Alterar status de um item
     Sair
   OPTIONS
 
@@ -32,7 +32,7 @@ def menu
   valid_options = (1..options_array.length).to_a
   input = gets.chomp
   until valid_options.include?(input.to_i)
-    puts "Opção inválida, escolha novamente:"
+    puts "Opção inválida, escolha novamente:".yellow
     input = gets.chomp
   end
   @option = input.to_i
@@ -47,7 +47,7 @@ def create
     puts "Cancelado!".red
     return self
   end
-  puts "==============================="
+  puts "==============================================".yellow
 
   category = Category.take_category
 
@@ -59,8 +59,8 @@ def create
 
   item = StudyItem.new(id: 0, category: category.id, title: title, description: description)
   StudyItem.save_to_db(category.id, title, description)
-  puts "Item cadastrado!"
-  list_description(StudyItem.find_by_id(StudyItem.get_id))
+  puts "Item cadastrado!".green
+  list_description(StudyItem.find_by_id(StudyItem.get_id)[0])
 end
 
 def take_description(option)
@@ -76,15 +76,15 @@ def take_description(option)
   elsif option == "n"
     return ""
   else
-    puts "Opção invalida, tente novamente"
+    puts "Opção invalida, tente novamente".yellow
   end
 end
 
-def list(itens, see_desc)
+def list(itens, see_det)
   itens.sort_by!{|item| item.category.id}
   categorys_array = itens.map{|item| [item.category.id, item.category.name]}.uniq
   puts "id - title"
-  puts "==============================="
+  puts "==============================================".yellow
   categorys_array.each do |category|
     if itens.map{|item| item.category.id.to_i}.uniq.include?(category[0])
       puts "==== ##{ category[0] } - #{ category[1] } ===="
@@ -100,33 +100,40 @@ def list(itens, see_desc)
       puts "\n"
     end
   end
-  puts "==============================="
+  puts "==============================================".yellow
 
-  if see_desc
-    puts "Para visualizar a descrição de algum item, digite seu ID: (Enter para ignorar)"
+  if see_det
+    puts "Para visualizar detalhes de um item digite o ID: (Enter para ignorar)"
     id = gets.chomp
     unless id == ""
-      item = StudyItem.find_by_id(id)
+      item = StudyItem.find_by_id(id)[0]
       if item
-        list_description(item)
+        list_details(item)
       else
-        puts "Id invalido"
+        puts "Id invalido".yellow
       end
     end
   end
 end
 
-def list_description(item)
+def list_details(item)
+  puts "==============================================".yellow
   puts "==== ##{ item.category.id } - #{ item.category.name } ===="
   puts "#{item.id} - #{item.title}"
   if item.description != ""
-    puts "Descrição:"
+    puts "\nDescrição:"
     puts item.description
-    puts "==============================="
+    puts "\nStatus:"
+      if item.done == 1
+        puts "Concluido!".green
+      else
+        puts "Por fazer"
+      end
+    puts "==============================================".yellow
   else
-    puts "Este item não possui descrição, deseja adcionar uma? [Y/N]"
-    option = gets.chomp.chr.downcase
     begin
+      puts "Este item não possui descrição, deseja adcionar uma? [Y/N]"
+      option = gets.chomp.chr.downcase
       description = take_description(option)
       item.description = description
       StudyItem.update(item) if option == "y"
@@ -145,10 +152,10 @@ def search_by_keyword
 
   filtered_itens = StudyItem.find_by_keyword(key)
 
-  puts "==============================="
+  puts "==============================================".yellow
   if filtered_itens.length == 0
     puts "Nenhum item encontrado."
-    puts "==============================="
+    puts "==============================================".yellow
   elsif filtered_itens.length == 1
     puts "1 item encontrado:"
     puts "\n"
@@ -163,28 +170,39 @@ end
 def search_by_category
   puts "Menu de busca, digite # para cancelar\n\n".black.on_white
   categorys_array = Category.get_categorys
-  categorys_array.each_with_index{ |text, index| puts "##{ index } - #{ text }" if index > 0}
-  puts "Digite o termo desejado:"
-  category = gets.chomp.downcase
-  if category == "#"
-    puts "Cancelado!".red
-    return self
+  accepted_numbers = Array.new
+  categorys_array.each_with_index do |text, index| 
+    if index > 0
+      puts "##{ index } - #{ text }"
+      accepted_numbers << index.to_s
+    end
   end
-
-  filtered_itens = StudyItem.find_by_category(category)
-
-  if filtered_itens.length == 0
-    puts "Nenhum item encontrado."
-    puts "==============================="
-  elsif filtered_itens.length == 1
-    puts "1 item encontrado:"
-    puts "\n"
-    list(filtered_itens, true)
-  else
-    puts "#{filtered_itens.length} itens encontrados:"
-    puts "\n"
-    list(filtered_itens, true)
-  end
+    
+  begin
+    puts "Digite o número da categoria desejada:"
+    category = gets.chomp.downcase
+    if category == "#"
+      puts "Cancelado!".red
+      return self
+    elsif accepted_numbers.include?(category)
+      filtered_itens = StudyItem.find_by_category(category)
+  
+      if filtered_itens.length == 0
+        puts "Nenhum item encontrado."
+        puts "==============================================".yellow
+      elsif filtered_itens.length == 1
+        puts "1 item encontrado:"
+        puts "\n"
+        list(filtered_itens, true)
+      else
+        puts "#{ filtered_itens.length } itens encontrados:"
+        puts "\n"
+        list(filtered_itens, true)
+      end
+    else
+      puts "Categoria inválida, tente novamente".yellow
+    end
+  end until accepted_numbers.include?(category)
 end
 
 def delete_item
@@ -196,9 +214,26 @@ def delete_item
     puts "Cancelado!".red
     return self
   end
-  StudyItem.delet_by_id(id)
-  puts "\n"
-  puts "Removido com sucesso"
+  clear
+  puts "Item selecionado:"
+  selected_item = StudyItem.find_by_id(id)
+  list(selected_item, true)
+  begin
+    puts "Confirmar exclusão? [Y/N]"
+    option = gets.chomp.downcase
+    if option == "y"
+      StudyItem.delet_by_id(id)
+      puts "\n"
+      puts "Removido com sucesso".green
+    elsif option == "n"
+      puts "Cancelado! selecione outro item ou cancele"
+      clear
+      delete_item
+    else
+      puts "Opção invalida! tente novamente."
+    end
+  end until option == "y" || option == "n"
+  
 end
 
 def update
@@ -210,7 +245,7 @@ def update
     puts "Cancelado!".red
     return self
   end
-  item = StudyItem.find_by_id(id)
+  item = StudyItem.find_by_id(id)[0]
   if item
     
     clear
@@ -261,7 +296,7 @@ def mark_as_done(item)
       puts "Cancelado!".red
       return self
     end
-    item = StudyItem.find_by_id(id)
+    item = StudyItem.find_by_id(id)[0]
   end
 
   if item
@@ -273,13 +308,13 @@ def mark_as_done(item)
       elsif option == "n"
         item.done = 0
       else
-        puts "Opção invalida, tente novamente"
+        puts "Opção invalida, tente novamente".yellow
       end
     end until option == "y" || option == "n"
 
     StudyItem.update(item)
   else
-    puts "Id invalido"
+    puts "Id invalido".red
   end
 end
 
