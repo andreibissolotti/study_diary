@@ -60,7 +60,7 @@ def create
   item = StudyItem.new(id: 0, category: category.id, title: title, description: description)
   StudyItem.save_to_db(category.id, title, description)
   puts "Item cadastrado!".green
-  list_description(StudyItem.find_by_id(StudyItem.get_id)[0])
+  list_details(StudyItem.find_by_id(StudyItem.get_id)[0])
 end
 
 def take_description(option)
