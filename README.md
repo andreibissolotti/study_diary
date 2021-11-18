@@ -1,6 +1,6 @@
 # study_diary
 
-### Desafio opcional? do programa quero ser dev 7 da Campus Code.
+### Desafio extra do programa quero ser dev 7 da Campus Code.
 
 ### Features
 
