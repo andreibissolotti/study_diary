@@ -27,7 +27,7 @@
 git clone https://github.com/andreibissolotti/study_diary
 cd study_diary
 bin/setup
-ruby lib/study_diary.rb
+bin/run
 ```
 
 
