@@ -1,0 +1,3 @@
+#!/usr/bin/env ruby
+
+system "ruby lib/study_diary.rb"
