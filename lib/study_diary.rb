@@ -1,6 +1,15 @@
 require_relative 'study_item'
 require 'colorize'
 
+CREATE              = 1
+LIST                = 2
+SEARCH_BY_KEYWORD   = 3
+SEARCH_BY_CATEGORY  = 4
+DELETE              = 5
+UPDATE              = 6
+MARK_AS_DONE        = 7
+EXIT                = 8
+
 def get_options
   options = <<~OPTIONS
     Cadastrar um item para estudar
@@ -323,33 +332,33 @@ begin
   menu
   
   case @option
-  when 1
+  when CREATE
     clear
     create
-  when 2
+  when LIST
     clear
     list(@itens, true)
-  when 3
+  when SEARCH_BY_KEYWORD
     clear
     search_by_keyword
-  when 4
+  when SEARCH_BY_CATEGORY
     clear
     search_by_category
-  when 5
+  when DELETE
     clear
     delete_item
-  when 6
+  when UPDATE
     clear
     update
-  when 7
+  when MARK_AS_DONE
     clear
     mark_as_done("")
   end
 
-  unless @option == 8
+  unless @option == EXIT
     puts "Pressione 'Enter' para continuar"
     gets
   end
-end until @option == 8
+end until @option == EXIT
 clear
 puts "Obrigado por usar o diario de estudos".black.on_white
