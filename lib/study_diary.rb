@@ -6,22 +6,20 @@ SEARCH_BY_KEYWORD   = 3
 SEARCH_BY_CATEGORY  = 4
 DELETE              = 5
 UPDATE              = 6
-MARK_AS_DONE        = 7
+CHANGE_STATS        = 7
 EXIT                = 8
 
 def get_options
-  options = <<~OPTIONS
-    Cadastrar um item para estudar
-    Ver todos os itens cadastrados
-    Buscar um termo de estudo
-    Buscar por categoria
-    Excluir item
-    Atualizar item
-    Alterar status de um item
-    Sair
+  puts <<~OPTIONS
+    [#{CREATE}] Cadastrar um item para estudar
+    [#{LIST}] Ver todos os itens cadastrados
+    [#{SEARCH_BY_KEYWORD}] Buscar um termo de estudo
+    [#{SEARCH_BY_CATEGORY}] Buscar por categoria
+    [#{DELETE}] Excluir item
+    [#{UPDATE}] Atualizar item
+    [#{CHANGE_STATS}] Alterar status de um item
+    [#{EXIT}] Sair
   OPTIONS
-
-  options.split("\n")
 end
 
 def clear
@@ -33,16 +31,9 @@ def menu
   puts "Bem vindo ao diario de estudos\n\n".black.on_white
   @itens = StudyItem.all
 
-  options_array = get_options
-  options_array.each.with_index(1){ |text, index| puts "[#{ index }] #{ text }" }
+  get_options
   puts "Escolha uma opção:"
-
-  valid_options = (1..options_array.length).to_a
   input = gets.chomp
-  until valid_options.include?(input.to_i)
-    puts "Opção inválida, escolha novamente:".yellow
-    input = gets.chomp
-  end
   @option = input.to_i
 end
 
@@ -110,109 +101,31 @@ def delete_item
   print "Digite o id do item a ser deletado: "
   id = gets.chomp
   if id == "0"
-    puts "Cancelado!".red
-    return self
+    
   end
   clear
   puts "Item selecionado:"
   selected_item = StudyItem.find_by_id(id)
-  selected_item.list_details
-  begin
-    puts "Confirmar exclusão? [Y/N]"
-    option = gets.chomp.downcase
-    if option == "y"
-      StudyItem.delet_by_id(id)
-      puts "\n"
-      puts "Removido com sucesso".green
-    elsif option == "n"
-      puts "Cancelado! selecione outro item ou cancele"
-      clear
-      delete_item
-    else
-      puts "Opção invalida! tente novamente."
-    end
-  end until option == "y" || option == "n"
-end
-
-def update
-  puts "Menu de edição, digite 0 para cancelar\n\n".black.on_white
-  list(@itens, false)
-  puts "Digite o id do item a ser editado:"
-  id = gets.chomp
-  if id == "0"
+  if selected_item
+    selected_item.list_details
+    begin
+      puts "Confirmar exclusão? [Y/N]"
+      option = gets.chomp.downcase
+      if option == "y"
+        StudyItem.delet_by_id(id)
+        puts "\n"
+        puts "Removido com sucesso".green
+      elsif option == "n"
+        puts "Cancelado! selecione outro item ou cancele"
+        clear
+        delete_item
+      else
+        puts "Opção invalida! tente novamente."
+      end
+    end until option == "y" || option == "n"
+  else
     puts "Cancelado!".red
     return self
-  end
-  item = StudyItem.find_by_id(id)[0]
-  if item
-    
-    clear
-    puts "(vazio para manter atual)"
-    puts "Digite novo titulo:"
-    titulo_new = gets.chomp
-    unless titulo_new == ""
-      item.title = titulo_new
-    end
-
-    clear
-    begin
-      puts "Alterar categoria? [Y/N]"
-      option = gets.chomp.chr.downcase
-      if option == "y"
-        clear
-        category_new = Category.take_category
-        unless category_new == ""
-          item.category.id = category_new.id
-        end
-      elsif option == "n"
-      else
-        puts "Opção invalida, tente novamente"
-      end
-    end until option == "y" || option == "n"
-
-    clear
-    puts "(vazio para manter atual)"
-    description_new = take_description("y")
-    unless description_new == ""
-      item.description = description_new
-    end
-
-    clear
-    mark_as_done(item)
-  else
-    puts "Id invalido"
-  end
-end
-
-def mark_as_done(item)
-  if item == ""
-    puts "Menu de edição, digite 0 para cancelar\n\n".black.on_white
-    list(@itens, false)
-    puts "Digite o id do item a ser editado:"
-    id = gets.chomp
-    if id == "0"
-      puts "Cancelado!".red
-      return self
-    end
-    item = StudyItem.find_by_id(id)[0]
-  end
-
-  if item
-    begin
-      puts "Esta tarefa está concluida? [Y/N]"
-      option = gets.chomp.chr.downcase
-      if option == "y"
-        item.done = 1
-      elsif option == "n"
-        item.done = 0
-      else
-        puts "Opção invalida, tente novamente".yellow
-      end
-    end until option == "y" || option == "n"
-
-    StudyItem.update(item)
-  else
-    puts "Id invalido".red
   end
 end
 
@@ -237,10 +150,13 @@ begin
     delete_item
   when UPDATE
     clear
-    update
-  when MARK_AS_DONE
+    StudyItem.update
+  when CHANGE_STATS
     clear
-    mark_as_done("")
+    StudyItem.change_stats
+  when EXIT
+  else
+    puts "\nOpção invalida\n".yellow
   end
 
   unless @option == EXIT

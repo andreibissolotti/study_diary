@@ -14,6 +14,10 @@ class StudyItem
     @done = done
   end
 
+  def clear
+    system("clear")
+  end
+
   def done?
     done == 1
   end
@@ -177,12 +181,112 @@ class StudyItem
     db.close
   end
 
-  def self.update(item)
+  def self.update
+    puts "Menu de edição, digite 0 para cancelar\n\n".black.on_white
+    StudyItem.list_itens(all, false)
+    puts "Digite o id do item a ser editado:"
+    id = gets.chomp
+    if id == "0"
+      puts "Cancelado!".red
+      return self
+    end
+    
+    item = StudyItem.find_by_id(id)
+    if item
+      clear
+      puts "Item selecionado:"
+      selected_item = StudyItem.find_by_id(id)
+      selected_item.list_details
+      begin
+        puts "Confirmar seleção? [Y/N]"
+        option = gets.chomp.downcase
+        if option == "y"
+          clear
+          puts "(vazio para manter atual)"
+          puts "Digite novo titulo:"
+          titulo_new = gets.chomp
+          unless titulo_new == ""
+            item.title = titulo_new
+          end
+
+          clear
+          begin
+            puts "Alterar categoria? [Y/N]"
+            option = gets.chomp.chr.downcase
+            if option == "y"
+              clear
+              item.category = Category.take_category
+            elsif option == "n"
+            else
+              puts "Opção invalida, tente novamente"
+            end
+          end until option == "y" || option == "n"
+
+          clear
+          puts "(vazio para manter atual)"
+          description_new = Description.take_description("y")
+          unless description_new == ""
+            item.description = description_new
+          end
+          clear
+          item.update_db.list_new
+
+        elsif option == "n"
+          puts "Cancelado! selecione outro item ou cancele"
+          clear
+          update
+        else
+          puts "Opção invalida! tente novamente."
+        end
+      end until option == "y" || option == "n"
+    end
+  end
+
+  def self.change_stats
+    puts "Menu de edição, digite 0 para cancelar\n\n".black.on_white
+    StudyItem.list_itens(all, false)
+    puts "Digite o id do item a ser editado:"
+    id = gets.chomp
+    if id == "0"
+      puts "Cancelado!".red
+      return self
+    end
+    
+    item = StudyItem.find_by_id(id)
+    if item
+      clear
+      puts "Item selecionado:"
+      selected_item = StudyItem.find_by_id(id)
+      selected_item.list_details
+      begin
+        puts "Confirmar seleção? [Y/N]"
+        option = gets.chomp.downcase
+        if option == "y"
+          if selected_item.done?
+            selected_item.done = 0
+          else
+            selected_item.done = 1
+          end
+          clear
+          selected_item.update_db.list_details
+        elsif option == "n"
+          puts "Cancelado! selecione outro item ou cancele"
+          clear
+          update
+        else
+          puts "Opção invalida! tente novamente."
+        end
+      end until option == "y" || option == "n"
+    end
+  end
+
+  def update_db
     db = SQLite3::Database.open "db/database.db"
     db.execute "
-    UPDATE study_itens SET category = #{item.category.id}, title = '#{item.title}', descr = '#{item.description}', done = #{item.done} WHERE id LIKE #{item.id}"
+    UPDATE study_itens SET category = #{category.id}, title = '#{title}', descr = '#{description}', done = #{done} WHERE id LIKE #{id}"
     db.close
 
     puts "Item Atualizado".green
+    self
   end
 end
