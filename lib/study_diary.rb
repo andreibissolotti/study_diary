@@ -99,7 +99,7 @@ def list(itens, see_det)
       puts "==== ##{ category[0] } - #{ category[1] } ===="
       itens.each do |item| 
         if item.category.id.to_i == category[0]
-          if item.done == 1
+          if item.done
             puts "#{item.id} - #{item.title}".green
           else
             puts "#{item.id} - #{item.title}"
@@ -133,7 +133,7 @@ def list_details(item)
     puts "\nDescrição:"
     puts item.description
     puts "\nStatus:"
-      if item.done == 1
+      if item.done
         puts "Concluido!".green
       else
         puts "Por fazer"
