@@ -34,7 +34,7 @@ def menu
   @itens = StudyItem.all
 
   options_array = get_options
-  options_array.each_with_index{ |text, index| puts "[#{ index + 1 }] #{ text }" }
+  options_array.each.with_index(1){ |text, index| puts "[#{ index }] #{ text }" }
   puts "Escolha uma opção:"
 
   valid_options = (1..options_array.length).to_a
@@ -44,63 +44,6 @@ def menu
     input = gets.chomp
   end
   @option = input.to_i
-end
-
-def list(itens, see_det)
-  itens.sort_by!{|item| item.category.id}
-  categorys_array = itens.map{|item| item.category }.uniq
-  puts "id - title"
-  puts "==============================================".yellow
-  categorys_array.each do |category|
-    if categorys_array.include?(category)
-      puts "==== #{category} ===="
-      itens.each do |item| 
-        if item.category == category
-          puts item
-        end
-      end
-      puts "\n"
-    end
-  end
-  puts "==============================================".yellow
-
-  if see_det
-    puts "Para visualizar detalhes de um item digite o ID: (Enter para ignorar)"
-    id = gets.chomp
-    unless id == ""
-      item = StudyItem.find_by_id(id)[0]
-      if item
-        list_details(item)
-      else
-        puts "Id invalido".yellow
-      end
-    end
-  end
-end
-
-def list_details(item)
-  puts "==============================================".yellow
-  puts "==== ##{ item.category.id } - #{ item.category.name } ===="
-  puts "#{item.id} - #{item.title}"
-  if item.description != ""
-    puts "\nDescrição:"
-    puts item.description
-    puts "\nStatus:"
-      if item.done
-        puts "Concluido!".green
-      else
-        puts "Por fazer"
-      end
-    puts "==============================================".yellow
-  else
-    begin
-      puts "Este item não possui descrição, deseja adcionar uma? [Y/N]"
-      option = gets.chomp.chr.downcase
-      description = take_description(option)
-      item.description = description
-      StudyItem.update(item) if option == "y"
-    end until option == "y" || option == "n"
-  end
 end
 
 def search_by_keyword
@@ -121,11 +64,11 @@ def search_by_keyword
   elsif filtered_itens.length == 1
     puts "1 item encontrado:"
     puts "\n"
-    list(filtered_itens, true)
+    StudyItem.list_itens(filtered_itens, true)
   else
     puts "#{filtered_itens.length} itens encontrados:"
     puts "\n"
-    list(filtered_itens, true)
+    StudyItem.list_itens(filtered_itens, true)
   end
 end
 
@@ -289,7 +232,7 @@ begin
     StudyItem.create
   when LIST
     clear
-    list(@itens, true)
+    StudyItem.list_itens(@itens, true)
   when SEARCH_BY_KEYWORD
     clear
     search_by_keyword

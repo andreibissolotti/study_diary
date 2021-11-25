@@ -20,6 +20,7 @@ class StudyItem
 
   def list_details
     puts <<~TEXT
+      ==============================================
       #{ title } - #{ category.name }
 
       === Descrição ===
@@ -27,20 +28,23 @@ class StudyItem
 
       === Status ===
       #{ done? ? "Finalizada".green : "Pendente" }
+      ==============================================
     TEXT
   end
 
   def list_new
     puts <<~TEXT
+      ==============================================
       #{ title } - #{ category.name }
 
       === Descrição ===
       #{ description }
+      ==============================================
     TEXT
   end
 
   def to_s
-    done? ? "##{ id } - #{name}".green : "##{ id } - #{name}"
+    done? ? "##{ id } - #{title}".green : "##{ id } - #{title}"
   end
 
   def self.create
@@ -66,13 +70,45 @@ class StudyItem
     item.save_to_db
   end
 
+  def self.list_itens(itens, see_desc)
+    itens.sort_by!{|item| item.category.id}
+    categorys_array = itens.map{|item| item.category }.uniq
+    puts "id - title"
+    puts "==============================================".yellow
+    categorys_array.each do |category|
+      puts "==== #{category} ===="
+      itens.each do |item| 
+        if item.category == category
+          puts item
+        end
+      end
+      puts "\n"
+    end
+
+    if see_desc
+      puts "Para ignorar deixe em branco..."
+      print "Para ver os detalhes de algum item, insira seu id: "
+      id = gets.to_i
+      itens.each{|item| item.list_details if item.id == id}
+    end
+    puts "==============================================".yellow
+  end
+
   def self.all
     db = SQLite3::Database.open "db/database.db"
     db.results_as_hash = true
     study_itens = db.execute "SELECT * FROM study_itens"
     db.close
 
-    study_itens.map {|study_item| new(id: study_item['id'], category: Category.categories[study_item['category'] - 1], title: study_item['title'], description: study_item['descr'], done: study_item['done']) }
+    study_itens.map do |study_item| 
+      new(
+        id: study_item['id'],
+        category: Category.get(study_item['category']),
+        title: study_item['title'],
+        description: study_item['descr'],
+        done: study_item['done']
+      )
+    end
   end
 
   def save_to_db
@@ -89,7 +125,15 @@ class StudyItem
     study_itens = db.execute "SELECT * FROM study_itens where title LIKE '%#{keyword}%' OR descr LIKE '%#{keyword}%'"
     db.close
 
-    study_itens.map {|study_item| new(id: study_item['id'], category: study_item['category'], title: study_item['title'], description: study_item['descr'], done: study_item['done']) }
+    study_itens.map do |study_item| 
+      new(
+        id: study_item['id'],
+        category: Category.get(study_item['category']),
+        title: study_item['title'],
+        description: study_item['descr'],
+        done: study_item['done']
+      )
+    end
   end
 
   def self.find_by_category(category)
@@ -98,16 +142,32 @@ class StudyItem
     study_itens = db.execute "SELECT * FROM study_itens where category LIKE '#{category}'"
     db.close
 
-    study_itens.map {|study_item| new(id: study_item['id'], category: study_item['category'], title: study_item['title'], description: study_item['descr'], done: study_item['done']) }
+    study_itens.map do |study_item| 
+      new(
+        id: study_item['id'],
+        category: Category.get(study_item['category']),
+        title: study_item['title'],
+        description: study_item['descr'],
+        done: study_item['done']
+      )
+    end
   end
 
   def self.find_by_id(id)
     db = SQLite3::Database.open "db/database.db"
     db.results_as_hash = true
-    study_itens = db.execute "SELECT * FROM study_itens where id = '#{id}'"
+    study_item = db.execute "SELECT * FROM study_itens where id = '#{id}'"
     db.close
-
-    study_itens.map {|study_item| new(id: study_item['id'], category: study_item['category'], title: study_item['title'], description: study_item['descr'], done: study_item['done']) }
+    if !study_item.empty?
+      return new(
+                  id: study_item[0]['id'],
+                  category: Category.get(study_item[0]['category']),
+                  title: study_item[0]['title'],
+                  description: study_item[0]['descr'],
+                  done: study_item[0]['done']
+                )
+    end
+    false
   end
 
   def self.delet_by_id(id)

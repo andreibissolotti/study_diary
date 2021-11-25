@@ -9,6 +9,10 @@ class Category
     @@next_id += 1
   end
 
+  def self.get(id)
+    Category.categories[id - 1]
+  end
+
   def to_s
     "##{ id } - #{ name }"
   end
@@ -19,6 +23,10 @@ class Category
     Category.new("HTML"),
     Category.new("Javascript")
   ]
+
+  def include?(category)
+    CATEGORIES.include?(category)
+  end
 
   def self.categories
     CATEGORIES
