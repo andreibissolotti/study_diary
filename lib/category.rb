@@ -1,42 +1,40 @@
 class Category
-  attr_accessor :id
-  attr_reader :name
+  attr_reader :id, :name
 
-  def initialize(id)
-    @id = id
-    @name = get_category_name(id)
+  @@next_id = 1
+
+  def initialize(name)
+    @id = @@next_id
+    @name = name
+    @@next_id += 1
+  end
+
+  def to_s
+    "##{ id } - #{ name }"
+  end
+
+  CATEGORIES = [
+    Category.new("Ruby"),
+    Category.new("Rails"),
+    Category.new("HTML"),
+    Category.new("Javascript")
+  ]
+
+  def self.categories
+    CATEGORIES
   end
 
   def self.take_category
-    categorys_array = get_categorys
-    categorys_array.each_with_index{ |text, index| puts "##{ index } - #{ text }" if index > 0}
+    CATEGORIES.each{ |category| puts category }
     puts "Defina a categoria:"
     
-    valid_categorys = (1..categorys_array.length).to_a
-    input = gets.chomp
-    until valid_categorys.include?(input.to_i)
+    valid_categories = (1..CATEGORIES.length).to_a
+    input = gets.chomp.to_i
+    until valid_categories.include?(input)
       puts "Categoria inválida, escolha novamente:"
-      input = gets.chomp
+      input = gets.chomp.to_i
     end
     
-    Category.new(input.to_i)
-  end
-
-  def get_category_name(id)
-    name_options = Category.get_categorys
-
-    name_options[id]
-  end
-
-  def self.get_categorys
-    categorys = <<~CATEGORYS
-      ---
-      Ruby
-      Rails
-      HTML
-      Javascript
-    CATEGORYS
-  
-    categorys.split("\n")
+    CATEGORIES[input - 1]
   end
 end
