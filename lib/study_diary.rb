@@ -1,4 +1,5 @@
 require_relative 'study_item'
+require 'io/console'
 
 CREATE              = 1
 LIST                = 2
@@ -160,8 +161,8 @@ begin
   end
 
   unless @option == EXIT
-    puts "Pressione 'Enter' para continuar"
-    gets
+    puts 'Pressione qualquer tecla para continuar'
+    STDIN.getch
   end
 end until @option == EXIT
 clear
