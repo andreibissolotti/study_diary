@@ -64,7 +64,7 @@ def search_by_keyword
   elsif filtered_itens.length == 1
     puts "1 item encontrado:"
     puts "\n"
-    StudyItem.list_itens(filtered_itens, true)
+    filtered_itens[0].list_details
   else
     puts "#{filtered_itens.length} itens encontrados:"
     puts "\n"
@@ -73,20 +73,14 @@ def search_by_keyword
 end
 
 def search_by_category
-  puts "Menu de busca, digite # para cancelar\n\n".black.on_white
-  categorys_array = Category.get_categorys
-  accepted_numbers = Array.new
-  categorys_array.each_with_index do |text, index| 
-    if index > 0
-      puts "##{ index } - #{ text }"
-      accepted_numbers << index.to_s
-    end
-  end
+  puts "Menu de busca, digite 0 para cancelar\n\n".black.on_white
+  puts Category.categories
+  accepted_numbers = (1..Category.categories.length)
     
   begin
     puts "Digite o número da categoria desejada:"
-    category = gets.chomp.downcase
-    if category == "#"
+    category = gets.chomp.to_i
+    if category == 0
       puts "Cancelado!".red
       return self
     elsif accepted_numbers.include?(category)
@@ -98,11 +92,11 @@ def search_by_category
       elsif filtered_itens.length == 1
         puts "1 item encontrado:"
         puts "\n"
-        list(filtered_itens, true)
+        filtered_itens[0].list_details
       else
         puts "#{ filtered_itens.length } itens encontrados:"
         puts "\n"
-        list(filtered_itens, true)
+        StudyItem.list_itens(filtered_itens, true)
       end
     else
       puts "Categoria inválida, tente novamente".yellow
@@ -112,8 +106,8 @@ end
 
 def delete_item
   puts "Menu de exclusão, digite 0 para cancelar\n\n".black.on_white
-  list(@itens, false)
-  puts "Digite o id do item a ser deletado:"
+  StudyItem.list_itens(@itens, false)
+  print "Digite o id do item a ser deletado: "
   id = gets.chomp
   if id == "0"
     puts "Cancelado!".red
@@ -122,7 +116,7 @@ def delete_item
   clear
   puts "Item selecionado:"
   selected_item = StudyItem.find_by_id(id)
-  list(selected_item, true)
+  selected_item.list_details
   begin
     puts "Confirmar exclusão? [Y/N]"
     option = gets.chomp.downcase
@@ -138,7 +132,6 @@ def delete_item
       puts "Opção invalida! tente novamente."
     end
   end until option == "y" || option == "n"
-  
 end
 
 def update
