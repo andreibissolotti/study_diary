@@ -1,5 +1,4 @@
 require_relative 'study_item'
-require 'colorize'
 
 CREATE              = 1
 LIST                = 2
@@ -26,7 +25,7 @@ def get_options
 end
 
 def clear
-  puts `clear`
+  system("clear")
 end
 
 def menu
@@ -47,63 +46,17 @@ def menu
   @option = input.to_i
 end
 
-def create
-  puts "Menu de criação, para cancelar digite 0\n\n".black.on_white
-  puts "Digite o titulo do item:"
-  title = gets.chomp
-
-  if title == "0"
-    puts "Cancelado!".red
-    return self
-  end
-  puts "==============================================".yellow
-
-  category = Category.take_category
-
-  begin
-    puts "Deseja adicionar alguma descrição? [Y/N]"
-    option = gets.chomp.chr.downcase
-    description = take_description(option)
-  end until option == "y" || option == "n"
-
-  item = StudyItem.new(id: 0, category: category.id, title: title, description: description)
-  StudyItem.save_to_db(category.id, title, description)
-  puts "Item cadastrado!".green
-  list_details(StudyItem.find_by_id(StudyItem.get_id)[0])
-end
-
-def take_description(option)
-  if option == "y"
-    begin
-      puts "Digite a descrição (max: 255 caracteres)"
-      desc = gets.chomp
-      unless desc.length <= 255
-        puts "Essa descrição ficou grande de mais, retire #{desc.length - 255} caracteres"
-      end
-    end until desc.length <= 255
-    return desc
-  elsif option == "n"
-    return ""
-  else
-    puts "Opção invalida, tente novamente".yellow
-  end
-end
-
 def list(itens, see_det)
   itens.sort_by!{|item| item.category.id}
-  categorys_array = itens.map{|item| [item.category.id, item.category.name]}.uniq
+  categorys_array = itens.map{|item| item.category }.uniq
   puts "id - title"
   puts "==============================================".yellow
   categorys_array.each do |category|
-    if itens.map{|item| item.category.id.to_i}.uniq.include?(category[0])
-      puts "==== ##{ category[0] } - #{ category[1] } ===="
+    if categorys_array.include?(category)
+      puts "==== #{category} ===="
       itens.each do |item| 
-        if item.category.id.to_i == category[0]
-          if item.done
-            puts "#{item.id} - #{item.title}".green
-          else
-            puts "#{item.id} - #{item.title}"
-          end
+        if item.category == category
+          puts item
         end
       end
       puts "\n"
@@ -327,14 +280,13 @@ def mark_as_done(item)
   end
 end
 
-
 begin
   menu
   
   case @option
   when CREATE
     clear
-    create
+    StudyItem.create
   when LIST
     clear
     list(@itens, true)

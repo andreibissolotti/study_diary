@@ -1,15 +1,69 @@
 require 'sqlite3'
+require 'colorize'
 require_relative 'category'
+require_relative 'description'
 
 class StudyItem
   attr_accessor :id, :category, :title, :description, :done
 
-  def initialize(id: 0, category: , title:, description:, done: 0)
+  def initialize(id: 0, category:, title:, description:, done: 0)
     @id = id
-    @category = Category.new(category)
+    @category = category
     @title = title
     @description = description
     @done = done
+  end
+
+  def done?
+    done == 1
+  end
+
+  def list_details
+    puts <<~TEXT
+      #{ title } - #{ category.name }
+
+      === Descrição ===
+      #{ description }
+
+      === Status ===
+      #{ done? ? "Finalizada".green : "Pendente" }
+    TEXT
+  end
+
+  def list_new
+    puts <<~TEXT
+      #{ title } - #{ category.name }
+
+      === Descrição ===
+      #{ description }
+    TEXT
+  end
+
+  def to_s
+    done? ? "##{ id } - #{name}".green : "##{ id } - #{name}"
+  end
+
+  def self.create
+    puts "Menu de criação, para cancelar digite 0 no titulo\n\n".black.on_white
+    print "Digite o titulo do item: "
+    title = gets.chomp
+  
+    if title == "0"
+      puts "Cancelado!".red
+      return nil
+    end
+    puts "==============================================".yellow
+  
+    category = Category.take_category
+  
+    begin
+      print "Deseja adicionar alguma descrição? [Y/N]   "
+      option = gets.chomp.chr.downcase
+      description = Description.take_description(option)
+    end until option == "y" || option == "n"
+  
+    item = StudyItem.new(category: category, title: title, description: description)
+    item.save_to_db
   end
 
   def self.all
@@ -18,13 +72,15 @@ class StudyItem
     study_itens = db.execute "SELECT * FROM study_itens"
     db.close
 
-    study_itens.map {|study_item| new(id: study_item['id'], category: study_item['category'], title: study_item['title'], description: study_item['descr'], done: study_item['done']) }
+    study_itens.map {|study_item| new(id: study_item['id'], category: Category.categories[study_item['category'] - 1], title: study_item['title'], description: study_item['descr'], done: study_item['done']) }
   end
 
-  def self.save_to_db(category, title, description)
+  def save_to_db
     db = SQLite3::Database.open "db/database.db"
-    db.execute "INSERT INTO study_itens (category, title, descr, done) VALUES('#{ category }', '#{ title }', '#{description}', 0)"
+    db.execute "INSERT INTO study_itens (category, title, descr, done) VALUES('#{ category.id }', '#{ title }', '#{ description }', #{ done })"
     db.close
+
+    self.list_new
   end
 
   def self.find_by_keyword(keyword)
@@ -68,15 +124,5 @@ class StudyItem
     db.close
 
     puts "Item Atualizado".green
-  end
-
-
-  def self.get_id
-    db = SQLite3::Database.open "db/database.db"
-    db.results_as_hash = true
-    id = db.execute "SELECT MAX(id) FROM study_itens"
-    db.close
-
-    id[0]['MAX(id)'].to_i
   end
 end
