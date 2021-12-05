@@ -10,7 +10,7 @@ puts "\n== Preparando banco de dados =="
 begin
   db = SQLite3::Database.open "db/database.db"
   db.execute <<~SQL
-    CREATE TABLE IF NOT EXISTS study_itens(
+    CREATE TABLE study_itens(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       category INTEGER,
       title varchar(255),

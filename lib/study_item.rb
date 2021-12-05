@@ -103,7 +103,7 @@ class StudyItem
     db.results_as_hash = true
     study_itens = db.execute "SELECT * FROM study_itens"
     db.close
-
+    
     study_itens.map do |study_item| 
       new(
         id: study_item['id'],
